@@ -8,7 +8,7 @@
 #
 import sys
 import ConfigParser
-import os
+import os, fnmatch
 import glob
 import shutil
 import subprocess
@@ -17,7 +17,7 @@ import getpass
 #ACTUAL SCRIPT MAKE MY LIFE EASIER
 def makemylifeeasier():
         file_length = file_len('/home/'+getpass.getuser()+'/Scripts/pairs.conf')
-        number_of_pairs = (file_length-9)/6
+        number_of_pairs = (file_length-9)/7
         #Start reading pairs
         x = 1
         config = ConfigParser.ConfigParser()
@@ -75,6 +75,7 @@ def makemylifeeasier():
                 DATA = config.get(y,'data_folder')
                 ANALYSIS = config.get(y,'analysis_folder')
                 KIND_OF = config.get(y,'kind_of')
+                DISCARD = config.get(y,'discard')
 		MATLAB_PREPROCESS_SCRIPT = config.get(y,'matlab_preprocess_script')
 		MATLAB_ANALYSIS_SCRIPT = config.get (y,'matlab_analysis_script')
                 #check if kind of file exists
@@ -95,6 +96,18 @@ def makemylifeeasier():
 			print PATH+'dcm2nii '+os.path.abspath('')+'/'+DATA+'/'+data_file[0]
                         print 'Executing MRICRON'
                         os.system(PATH+'dcm2nii '+os.path.abspath('')+'/'+DATA+'/'+data_file[0])
+                        #Discard user specified volumes
+                        matches = []
+                        for root, dirnames, filenames in os.walk(DATA):
+                                for discard in DISCARD:
+                                        discard = str(discard).zfill(3)
+                                        for filename in fnmatch.filter(filenames, 'f*'+discard+'.nii'):
+                                                matches.append(os.path.join(root, filename))
+                        for discardvolume in matches:
+                                print 'Deleting '+discardvolume
+                                os.remove(discardvolume)
+                        #Reinitialize matches array
+                        matches = []
                         print 'Creating Folder ' +ANALYSIS
                         try:
                                 os.makedirs(ANALYSIS)
@@ -126,7 +139,7 @@ def makemylifeeasier():
                                                 to_run = MATLAB_PREPROCESS_SCRIPT+'(\''+scan_folder+'\',\''+t_one+'\')'
                                                 print 'Start Processing in Matlab. Go Go Go!'
                                                 #Call matlab WITH GUI. Calling without GUI fails to print .ps file for preprocessing
-                                                Command = 'matlab -r "'+to_run+'",exit'
+                                                Command = 'matlab -wait -r "'+to_run+'",exit'
                                                 os.system(Command)
                                                 print 'Data Processing complete'
                         if (MATLAB_ANALYSIS_SCRIPT == ''):
@@ -190,6 +203,7 @@ def makefile():
                 data_folder = raw_input('Please enter the name of data folder (eg:-data_working_memory) :')
                 analysis_folder = raw_input('Please enter the name of analysis folder (eg:-analysis_working_memory) :')
                 kind_of = raw_input('Enter the kind of file that goes to the data folder :')
+                discard = raw_input('Enter the volumes to be discarded, separated by commas (eg:- 1,2,45,46) :')
                 matlab_preprocess_script = raw_input('Enter the name of MATLAB preprocess batch file :')
                 matlab_analysis_script = raw_input('Enter the name of MATLAB analysis batch file :')
                 #check whether file already exists
@@ -200,6 +214,7 @@ def makefile():
                         file.write('data_folder='+data_folder+'\n')
                         file.write('analysis_folder='+analysis_folder+'\n')
                         file.write('kind_of='+kind_of+'\n')
+                        file.write('discard='+discard+'\n')
                         file.write('matlab_preprocess_script='+matlab_preprocess_script+'\n')
                         file.write('matlab_analysis_script='+matlab_analysis_script+'\n')
                         file.close()
@@ -210,6 +225,7 @@ def makefile():
                         file.write('data_folder='+data_folder+'\n')
                         file.write('analysis_folder='+analysis_folder+'\n')
                         file.write('kind_of='+kind_of+'\n')
+                        file.write('discard='+discard+'\n')
                         file.write('matlab_preprocess_script='+matlab_preprocess_script+'\n')
                         file.write('matlab_analysis_script='+matlab_analysis_script+'\n')
                         file.close()
