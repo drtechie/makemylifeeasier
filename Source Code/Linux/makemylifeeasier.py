@@ -99,24 +99,19 @@ def makemylifeeasier():
                         #Discard user specified volumes
                         matches = []
                         for root, dirnames, filenames in os.walk(DATA):
-<<<<<<< HEAD
 				DISCARD = DISCARD.split(',')
                                 for discard in DISCARD:
 					#prepend 0 to discard volumes
                                         volume = str(discard).zfill(3)
 					#find file names of volumes to be discarded
                                         for filename in fnmatch.filter(filenames, 'f*'+volume+'.nii'):
-=======
                                 for discard in DISCARD:
                                         discard = str(discard).zfill(3)
                                         for filename in fnmatch.filter(filenames, 'f*'+discard+'.nii'):
->>>>>>> b91fd454c1def9d5be66afecc6d967717fdd4091
                                                 matches.append(os.path.join(root, filename))
                         for discardvolume in matches:
                                 print 'Deleting '+discardvolume
                                 os.remove(discardvolume)
-                        #Reinitialize matches array
-                        matches = []
                         print 'Creating Folder ' +ANALYSIS
                         try:
                                 os.makedirs(ANALYSIS)
