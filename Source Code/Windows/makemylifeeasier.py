@@ -105,8 +105,6 @@ def makemylifeeasier():
                         for discardvolume in matches:
                                 print 'Deleting '+discardvolume
                                 os.remove(discardvolume)
-                        #Reinitialize matches array
-                        matches = []
                         print 'Creating Folder ' +ANALYSIS
                         try:
                                 os.makedirs(ANALYSIS)
