@@ -99,12 +99,18 @@ def makemylifeeasier():
                         #Discard user specified volumes
                         matches = []
                         for root, dirnames, filenames in os.walk(DATA):
+<<<<<<< HEAD
 				DISCARD = DISCARD.split(',')
                                 for discard in DISCARD:
 					#prepend 0 to discard volumes
                                         volume = str(discard).zfill(3)
 					#find file names of volumes to be discarded
                                         for filename in fnmatch.filter(filenames, 'f*'+volume+'.nii'):
+=======
+                                for discard in DISCARD:
+                                        discard = str(discard).zfill(3)
+                                        for filename in fnmatch.filter(filenames, 'f*'+discard+'.nii'):
+>>>>>>> b91fd454c1def9d5be66afecc6d967717fdd4091
                                                 matches.append(os.path.join(root, filename))
                         for discardvolume in matches:
                                 print 'Deleting '+discardvolume
@@ -142,7 +148,7 @@ def makemylifeeasier():
                                                 to_run = MATLAB_PREPROCESS_SCRIPT+'(\''+scan_folder+'\',\''+t_one+'\')'
                                                 print 'Start Processing in Matlab. Go Go Go!'
                                                 #Call matlab WITH GUI. Calling without GUI fails to print .ps file for preprocessing
-                                                Command = 'matlab -r "'+to_run+'",exit'
+                                                Command = 'matlab -wait -r "'+to_run+'",exit'
                                                 os.system(Command)
                                                 print 'Data Processing complete'
                         if (MATLAB_ANALYSIS_SCRIPT == ''):
